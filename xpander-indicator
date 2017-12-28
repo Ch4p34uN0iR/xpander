@@ -22,7 +22,11 @@ class Indicator(object):
 			indicator_active,
 			AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
 		self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-		self.indicator.set_menu(self.build_menu())
+		# Work around the following error:
+		# (xpander-indicator:1696): Gdk-CRITICAL **:
+		# gdk_window_thaw_toplevel_updates: assertion
+		# 'window->update_and_descendants_freeze_count > 0' failed
+		# self.indicator.set_menu(self.build_menu())
 		self.manager_ui = gtkui.ManagerUI()
 		Gtk.main()
 
