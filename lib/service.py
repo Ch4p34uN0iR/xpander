@@ -146,10 +146,9 @@ class Service(threading.Thread):
 
 	def get_output(self, command):
 
-		output = subprocess.run(shlex.split(command),
-								stdout=subprocess.PIPE,
+		output = subprocess.check_output(shlex.split(command),
 								timeout=1,
-								universal_newlines=True).stdout
+								universal_newlines=True)
 		return output.strip('\n')
 
 	def send_backspace(self, string):

@@ -64,17 +64,15 @@ class Interface(object):
 		self.layout_split = re.compile(r"(\w+)(?:\(([\w-]+)\))?")
 		self.layout_watcher = threading.Thread(
 			target=self._layout_watcher, name="Layout Watcher", daemon=True)
-		xkb_state = subprocess.run(['setxkbmap', '-query'],
-			stdout=subprocess.PIPE,
-			universal_newlines=True).stdout.split('\n')
+		xkb_state = subprocess.check_output(['setxkbmap', '-query'],
+			universal_newlines=True).split('\n')
 		layouts = xkb_state[2][12:].split(',')
 		variants = [None if variant == '' else variant
 					for variant in xkb_state[3][12:].split(',')]
 		self.xkb_layouts = tuple(zip(layouts, variants))
-		self.current_layout = self.layout_split.match(subprocess.run(
+		self.current_layout = self.layout_split.match(subprocess.check_output(
 			['xkb-switch'],
-			stdout=subprocess.PIPE,
-			universal_newlines=True).stdout.strip()).groups()
+			universal_newlines=True).strip()).groups()
 		if self.current_layout != self.xkb_layouts[0]:
 			self.switch_layout(self.current_layout)
 
@@ -130,7 +128,7 @@ class Interface(object):
 			self.xkb_layouts, key=lambda match: match == layout, reverse=True)
 		layouts, variants = zip(*transient_layouts)
 		variants = ['' if variant is None else variant for variant in variants]
-		subprocess.run(['setxkbmap',
+		subprocess.call(['setxkbmap',
 						'-layout', ','.join(layouts),
 						'-variant', ','.join(variants)])
 		self.local_display.flush()
@@ -143,10 +141,10 @@ class Interface(object):
 		self.update_active_window()
 		layouts, variants = zip(*self.xkb_layouts)
 		variants = ['' if variant is None else variant for variant in variants]
-		subprocess.run(['setxkbmap',
+		subprocess.call(['setxkbmap',
 						'-layout', ','.join(layouts),
 						'-variant', ','.join(variants)])
-		subprocess.run(
+		subprocess.call(
 			['xkb-switch', '-s',
 			('{0}({1})'.format(*layout) if layout[1] else layout[0])])
 

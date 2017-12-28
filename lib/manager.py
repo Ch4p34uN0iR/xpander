@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import os.path
 import shutil
 import json
 from . import shared
@@ -49,19 +50,19 @@ class Phrases(object):
 		self.load_phrases()
 
 	def load_phrases(self, folder=shared.config['phrases_dir']):
-
-		for entry in os.scandir(folder):
-			if entry.is_dir():
-				self.load_phrases(entry.path)
+		for entry in os.listdir(folder):
+			entry_path = os.path.join(folder, entry)
+			if os.path.isdir(entry):
+				self.load_phrases(entry_path)
 			else:
-				path, ext = os.path.splitext(entry.path)
+				path, ext = os.path.splitext(entry_path)
 				if ext == '.json':
-					with open(entry.path) as phrase_file:
+					with open(entry_path) as phrase_file:
 						phrase = json.loads(phrase_file.read())
 						phrase['name'] = os.path.basename(path)
 						shared.phrases.append(phrase)
 						shared.phrase_paths[phrase['name']] = os.path.relpath(
-							os.path.dirname(entry.path), shared.config['phrases_dir'])
+							os.path.dirname(entry_path), shared.config['phrases_dir'])
 
 	def new_phrase(
 		self, name, string, body, command, method, window_class, window_title, path):
